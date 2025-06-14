@@ -335,6 +335,22 @@ onCollide("player", "enemy", (p, e) => {
     }
 });
 
+// Coin collection
+onCollide("player", "coin", (p, coin) => {
+    destroy(coin);
+    score += 10;
+    scoreLabel.text = score.toString();
+    
+    // Add collection effect
+    add([
+        text("+10", { size: 16 }),
+        pos(coin.pos.x, coin.pos.y),
+        color(255, 215, 0),
+        lifespan(0.5),
+        move(UP, 100)
+    ]);
+});
+
 // Restart game
 onKeyPress("r", () => {
     location.reload();  // Simple restart by reloading the page
