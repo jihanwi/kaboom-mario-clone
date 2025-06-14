@@ -89,6 +89,60 @@ onCollide("player", "coin", (p, coin) => {
     scoreLabel.text = score.toString();
 });
 
+// Add enemy
+const enemy = add([
+    pos(350, 500 - 40),  // Position enemy on middle platform
+    rect(40, 40),
+    area(),
+    body({ isStatic: false }),  // Make it affected by gravity
+    color(255, 0, 0),  // Red color
+    {
+        moveSpeed: 60,  // Slower speed for testing
+        direction: 1,   // 1 for right, -1 for left
+        startX: 350,    // Starting X position
+        endX: 510      // End X position (platform width - enemy width)
+    },
+    "enemy"
+]);
+
+// Enemy movement
+onUpdate("enemy", (e) => {
+    // Move enemy left/right
+    e.move(e.moveSpeed * e.direction, 0);
+    
+    // Change direction at platform edges
+    if (e.pos.x <= e.startX || e.pos.x >= e.endX) {
+        e.direction *= -1;
+    }
+});
+
+// Player-Enemy collision
+onCollide("player", "enemy", (p, e) => {
+    // Check if player is above enemy (simple version)
+    const playerBottom = p.pos.y + PLAYER_SIZE;
+    const enemyTop = e.pos.y;
+    
+    if (p.pos.y + PLAYER_SIZE <= e.pos.y + 10) {  // Player is on top
+        destroy(e);          // Destroy enemy
+        p.jump(300);        // Small bounce
+        score += 50;        // Add score
+        scoreLabel.text = score.toString();
+    } else {
+        // Player dies
+        destroy(p);
+        add([
+            text("Game Over!\nPress R to restart", { size: 32 }),
+            pos(width() / 2, height() / 2),
+            anchor("center"),
+        ]);
+    }
+});
+
+// Restart game
+onKeyPress("r", () => {
+    location.reload();  // Simple restart by reloading the page
+});
+
 // Player movement
 onKeyDown("left", () => {
     if (player.exists()) {
